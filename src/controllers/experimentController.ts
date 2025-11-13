@@ -1,6 +1,5 @@
 import { Request, Response } from 'express';
 import Experiment from '../models/Experiment';
-import { Op } from 'sequelize';
 
 export class ExperimentController {
   // Create a new experiment

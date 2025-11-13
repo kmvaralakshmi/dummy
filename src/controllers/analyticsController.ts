@@ -2,8 +2,7 @@ import { Request, Response } from 'express';
 import Event from '../models/Event';
 import Experiment from '../models/Experiment';
 import UserAssignment from '../models/UserAssignment';
-import { Op, fn, col, literal } from 'sequelize';
-import { IVariant } from '../models/Experiment';
+import { Op, fn, col } from 'sequelize';
 
 interface VariantStats {
   variantKey: string;

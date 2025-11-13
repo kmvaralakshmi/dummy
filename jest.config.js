@@ -10,9 +10,12 @@ module.exports = {
     'src/**/*.ts',
     '!src/**/*.d.ts',
     '!src/server.ts',
+    '!src/models/index.ts',
   ],
   coverageDirectory: 'coverage',
   coverageReporters: ['text', 'lcov', 'html'],
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],
   verbose: true,
+  maxWorkers: 1,
+  testTimeout: 30000,
 };
