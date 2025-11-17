@@ -31,6 +31,7 @@ export const trackingAPI = {
   track: (data) => api.post('/tracking/track', data),
   getUserVariant: (experimentKey, userId) => 
     api.get(`/tracking/${experimentKey}/${userId}`),
+  simulate: (experimentKey, count = 100, options = {}) => api.post('/tracking/simulate', { experimentKey, count, ...options }),
 };
 
 // Analytics

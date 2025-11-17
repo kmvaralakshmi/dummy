@@ -187,46 +187,16 @@ export default function TestSimulator({ experiments }) {
 
             try {
               setError('')
-              for (let i = 0; i < 10; i++) {
-                const testUserId = `test_user_${i}_${Date.now()}`
-                const assignRes = await trackingAPI.assign(selectedExperiment, testUserId)
-                
-                // Track impression
-                await trackingAPI.track({
-                  experimentKey: selectedExperiment,
-                  variantKey: assignRes.data.variantKey,
-                  userId: testUserId,
-                  eventType: 'impression'
-                })
-                
-                // 70% chance of click
-                if (Math.random() > 0.3) {
-                  await trackingAPI.track({
-                    experimentKey: selectedExperiment,
-                    variantKey: assignRes.data.variantKey,
-                    userId: testUserId,
-                    eventType: 'click'
-                  })
-                }
-                
-                // 20% chance of conversion
-                if (Math.random() > 0.8) {
-                  await trackingAPI.track({
-                    experimentKey: selectedExperiment,
-                    variantKey: assignRes.data.variantKey,
-                    userId: testUserId,
-                    eventType: 'conversion'
-                  })
-                }
-              }
-              setTrackingResult('✅ Generated 10 test users with events!')
+              // request backend to simulate 100 users
+              const res = await trackingAPI.simulate(selectedExperiment, 100)
+              setTrackingResult(`✅ ${res.data.message}`)
             } catch (err) {
-              setError('Failed to generate test data')
+              setError(err.response?.data?.error || 'Failed to generate test data')
             }
           }}
           disabled={!selectedExperiment}
         >
-          🚀 Generate 10 Test Users
+          🚀 Generate 100 Test Users
         </button>
       </div>
     </div>

@@ -162,6 +162,55 @@ export class TrackingController {
       res.status(500).json({ error: error.message });
     }
   }
+
+  // Simulate N users for an experiment (bulk generation)
+  async simulate(req: Request, res: Response) {
+    try {
+      const { experimentKey, count = 100, clickProb = 0.7, conversionProb = 0.2 } = req.body;
+
+      const experiment = await Experiment.findOne({ where: { key: experimentKey } });
+      if (!experiment) return res.status(404).json({ error: 'Experiment not found' });
+      if (experiment.status !== 'running') return res.status(400).json({ error: `Experiment is ${experiment.status}, not running` });
+
+      const summary: any = { assignments: 0, impressions: 0, clicks: 0, conversions: 0, perVariant: {} };
+
+      for (let i = 0; i < count; i++) {
+        const userId = `sim_${Date.now()}_${i}_${Math.random().toString(36).substr(2,5)}`;
+        const variantKey = this.selectVariantByWeight(experiment.variants);
+
+        // create assignment
+        try {
+          await UserAssignment.create({ experimentKey, userId, variantKey });
+        } catch (err) {
+          // skip duplicates or other errors for safety
+          continue;
+        }
+
+        summary.assignments++;
+        summary.perVariant[variantKey] = (summary.perVariant[variantKey] || 0) + 1;
+
+        // impression
+        await this.trackEvent({ experimentKey, variantKey, userId, eventType: 'impression' });
+        summary.impressions++;
+
+        // click
+        if (Math.random() < clickProb) {
+          await this.trackEvent({ experimentKey, variantKey, userId, eventType: 'click' });
+          summary.clicks++;
+
+          // conversion (only if clicked)
+          if (Math.random() < conversionProb) {
+            await this.trackEvent({ experimentKey, variantKey, userId, eventType: 'conversion' });
+            summary.conversions++;
+          }
+        }
+      }
+
+      res.json({ message: `Simulated ${summary.assignments} users`, summary });
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  }
 }
 
 export default new TrackingController();
